@@ -1,0 +1,632 @@
+---
+openapi: 3.0.0
+info:
+  title: School Domain API
+  description: School domain API exposing data from multiple sources
+  contact:
+    name: NSW DoE Integration Competency Centre
+    email: icc@det.nsw.edu.au
+  version: 1.1.0
+servers:
+- url: https://virtserver.swaggerhub.com/nsw-education/school-domain/1.1.0
+  description: SwaggerHub API Auto Mocking
+- url: https://example.com
+  description: Sandbox
+tags:
+- name: school
+paths:
+  /schools/search:
+    description: School search endpoint.
+    post:
+      tags:
+      - school
+      summary: Query school data.
+      description: Query school data with filtering.
+      operationId: getFilteredSchools
+      parameters:
+      - name: page
+        in: query
+        description: The page number of the paginated query.
+        required: true
+        style: form
+        explode: true
+        schema:
+          minimum: 1
+          type: integer
+          example: 1
+      - name: limit
+        in: query
+        description: The maximum results per page.
+        required: true
+        style: form
+        explode: true
+        schema:
+          maximum: 200
+          minimum: 1
+          type: integer
+          example: 20
+      - name: x-correlation-id
+        in: header
+        description: Correlation ID used to track requests.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          example: bcf0f7bc-8a29-4f76-9538-c3e0220fd845
+      requestBody:
+        description: Request body used to filter response.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryBodyType'
+        required: true
+      responses:
+        "200":
+          description: Successful school search query response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBodyType'
+        "400":
+          description: Bad Request - The server cannot or will not process the request due to an apparent client error (e.g., malformed request syntax, size too large, invalid request message framing, or deceptive request routing).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorsType'
+              example:
+                errors:
+                - status: 400
+                  title: Bad Request - The server cannot or will not process the request due to an apparent client error (e.g., malformed request syntax, size too large, invalid request message framing, or deceptive request routing).
+                  correlationId: 0-6098de50-ff39-11e8-b02a-06ec01bade82
+                  referenceId: 0-6098de50-ff39-11e8-b02a-06ec01bade82
+        "404":
+          description: Not Found - The requested resource could not be found but may be available in the future. Subsequent requests by the client are permissible.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorsType'
+              example:
+                errors:
+                - status: 404
+                  title: Not Found -The requested resource could not be found but may be available in the future. Subsequent requests by the client are permissible.
+                  correlationId: 0-6098de50-ff39-11e8-b02a-06ec01bade82
+                  referenceId: 0-6098de50-ff39-11e8-b02a-06ec01bade82
+        "500":
+          description: Internal Server Error - A generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommonErrorsType'
+              example:
+                errors:
+                - status: 500
+                  title: Internal Server Error - A generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
+                  correlationId: 0-6098de50-ff39-11e8-b02a-06ec01bade82
+                  referenceId: 0-6098de50-ff39-11e8-b02a-06ec01bade82
+      security:
+      - Oauth2:
+        - school-domain/read
+components:
+  schemas:
+    QueryBodyType:
+      type: object
+      properties:
+        query:
+          $ref: '#/components/schemas/QueryBodyType_query'
+      description: The envelope for the query.
+    ResponseBodyType:
+      type: object
+      properties:
+        links:
+          type: array
+          nullable: false
+          items:
+            $ref: '#/components/schemas/ResponseBodyType_links'
+        schools:
+          type: array
+          nullable: false
+          items:
+            $ref: '#/components/schemas/SchoolType'
+      description: School search query response
+    CommonErrorsType:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommonErrorType'
+      description: Common errors type
+    CommonErrorType:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identifier of the specific error
+          nullable: true
+          example: 3c1cc9a3-3f84-44fb-b561-8eb677aa779b
+        X-Correlation-ID:
+          type: string
+          description: Request identifier
+          nullable: false
+          example: 3c1cc9a3-3f84-44fb-b561-8eb677aa779b
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence of the problem.
+          nullable: false
+          example: Bad request
+        code:
+          type: integer
+          description: An application-specific error code
+          nullable: false
+          example: 400
+        source:
+          $ref: '#/components/schemas/CommonErrorType_source'
+      description: Common Error Data Type for single error responses.
+    SchoolType:
+      type: object
+      properties:
+        sourceSystemCode:
+          type: string
+          description: The source system of the dataset (AMS + SRD).
+          nullable: true
+          example: AMS
+        domainTopicName:
+          type: string
+          description: The domain topic of the dataset (AMS + SRD).
+          nullable: true
+          example: School
+        schoolCode:
+          type: string
+          description: The official NSW Department of Education school identififer. Note - For schools that are in the planning phase an official school identifier may not have been created (AMS + SRD).
+          nullable: true
+          example: "1001"
+        schoolSpecialityTypeName:
+          type: string
+          description: The specialty area name of the school (AMS + SRD).
+          nullable: true
+          example: Not Specialist
+        schoolGenderCompositionCode:
+          type: string
+          description: The gender composition code of the school (AMS + SRD).
+          nullable: true
+          example: Co-ed
+        schoolPrincipalNetworkName:
+          type: string
+          description: The principal network that the school is related to (AMS + SRD).
+          nullable: true
+          example: Iron Cove
+        schoolAddressLine1:
+          type: string
+          description: The street address details of the school  (AMS + SRD).
+          nullable: true
+          example: Abbotsford Public School, 350 Great N Rd, Abbotsford NSW 2046, Australia.
+        schoolSuburbName:
+          type: string
+          description: The suburb name of the school (AMS + SRD).
+          nullable: true
+          example: Abbotsford
+        schoolPostalCode:
+          type: integer
+          description: The postal code of the school (AMS + SRD).
+          nullable: true
+          example: 2046
+        schoolPhoneNumber:
+          type: string
+          description: The phone number of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS + SRD).
+          nullable: true
+          example: 9713 6220
+        schoolEmailAddress:
+          type: string
+          description: The email address of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS + SRD).
+          nullable: true
+          example: abbotsford-p.school@det.nsw.edu.au
+        schoolLocalGovernmentAreaName:
+          type: string
+          description: The Local Government Area that the school is located in. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS + SRD).
+          nullable: true
+          example: Canada Bay (A)
+        schoolStateElectorateName:
+          type: string
+          description: The State Electorate Name that the school is located in. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS + SRD).
+          nullable: true
+          example: DRUMMOYNE
+        schoolFederalElectorateName:
+          type: string
+          description: The Federal Electorate Name that the school is located in. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS + SRD).
+          nullable: true
+          example: Reid
+        schoolFullName:
+          type: string
+          description: The official NSW Department of Education school name (SRD).
+          nullable: true
+          example: Abbotsford Public School
+        schoolShortName:
+          type: string
+          description: An abbreviated name for the school. NOTE Usually the same as the full name used for the school (SRD).
+          nullable: true
+          example: Abbotsford
+        schoolStatusTypeCode:
+          type: string
+          description: The status code of the school (SRD).
+          nullable: true
+          example: "6"
+        schoolStatusTypeName:
+          type: string
+          description: The status name of the school (SRD).
+          nullable: true
+          example: Open School
+        schoolLevelTypeCode:
+          type: string
+          description: The education level code of the school (SRD).
+          nullable: true
+          example: "11"
+        schoolLevelTypeName:
+          type: string
+          description: The education level name of the school (SRD).
+          nullable: true
+          example: Primary Schools
+        schoolLevelSubtypeCode:
+          type: string
+          description: The education level subtype code of the school (SRD).
+          nullable: true
+          example: "6"
+        schoolLevelSubtypeName:
+          type: string
+          description: The education level subtype name of the school (SRD).
+          nullable: true
+          example: Primary K-6
+        schoolSpecialityTypeCode:
+          type: string
+          description: The specialty area code of the school (SRD).
+          nullable: true
+          example: "16"
+        schoolSelectiveTypeCode:
+          type: string
+          description: The selective type code of the school (SRD).
+          nullable: true
+          example: "N"
+        schoolSelectiveTypeName:
+          type: string
+          description: The selective type name of the school (SRD).
+          nullable: true
+          example: "N"
+        schoolPreschoolIndicator:
+          type: string
+          description: Whether a preschool is attached to the school (SRD).
+          nullable: true
+          example: "N"
+        schoolOpportunityClassIndicator:
+          type: string
+          description: Whether opportunity classes are offered at the school (SRD).
+          nullable: true
+          example: "N"
+        schoolDistanceEducationCode:
+          type: string
+          description: Whether the school is a distance education centre (SRD).
+          nullable: true
+          example: "No"
+        schoolIntensiveEnglishCenterIndicator:
+          type: string
+          description: Whether the school has an Intensive English Centre (SRD).
+          nullable: true
+          example: "N"
+        schoolLateOpeningIndicator:
+          type: string
+          description: Whether the school has later opening hours i.e. for after school care (SRD).
+          nullable: true
+          example: "No"
+        schoolNetworkDirectorName:
+          type: string
+          description: School Network Director name (SRD).
+          nullable: true
+          example: John Smith
+        schoolOperationalDirectorateCode:
+          type: string
+          description: The operational directorate code of the school (SRD).
+          nullable: true
+          example: "26008"
+        schoolOperationalDirectorateName:
+          type: string
+          description: The operational directorate name of the school (SRD).
+          nullable: true
+          example: Metropolitan North
+        schoolAgeIdentifier:
+          type: string
+          description: The Commonwealth government identifier of the school (SRD).
+          nullable: true
+          example: "4402"
+        schoolAddressTypeName:
+          type: string
+          description: The address type of the school (SRD).
+          nullable: true
+          example: SchoolAddress
+        schoolAddressLine2:
+          type: string
+          description: The street address details of the school (SRD).
+          nullable: true
+          example: NSW
+        schoolSectorTypeName:
+          type: string
+          description: The sector type name of the school (SRD).
+          nullable: true
+          example: Government
+        schoolCommencementDate:
+          type: string
+          description: To Be Advised (SRD).
+          format: date-time
+          nullable: true
+          example: 2015-07-04T21:00:00Z
+        schoolClosedDate:
+          type: string
+          description: To Be Advised (SRD).
+          format: date-time
+          nullable: true
+          example: 2015-07-04T21:00:00Z
+        schoolEmployeeOnDutyDate:
+          type: string
+          description: The date on which date employees are on duty at the school (SRD).
+          format: date-time
+          nullable: true
+          example: 2015-07-04T21:00:00Z
+        schoolEmployeeWithdrawnDate:
+          type: string
+          description: The date on which employees are no longer on duty at the school (SRD).
+          format: date-time
+          nullable: true
+          example: 2015-07-04T21:00:00Z
+        schoolPrincipalName:
+          type: string
+          description: The name of the principal of the school (SRD).
+          nullable: true
+          example: John Smith
+        schoolLastYearEnrolmentNumber:
+          type: string
+          description: The last year that the school accepted enrolments (SRD).
+          nullable: true
+          example: "2018"
+        schoolYancowinIndicator:
+          type: string
+          description: This attribute represents the Yancowan Indicator of the school (SRD).
+          nullable: true
+          example: "N"
+        schoolHotClimateAllowanceIndicator:
+          type: string
+          description: This attribute represents that the school is located in a hot climate area which indicates that a particular allowance may be provided (SRD).
+          nullable: true
+          example: "N"
+        schoolColdClimateAllowanceIndicator:
+          type: string
+          description: This attribute represents that the school is located in a cold climate area which indicates that a particular allowance may be provided (SRD).
+          nullable: true
+          example: "N"
+        schoolSocioCarAllowanceAmount:
+          type: number
+          description: This attribute represents that the school is located in a particular area which indicates that an allowance amount may be provided (SRD).
+          nullable: true
+          example: 0
+        schoolIndexCommunitySocioEducationalAdvantageValue:
+          type: integer
+          description: The Index of Community Socio Educational Advantage Value of the school (SRD).
+          nullable: true
+          example: 1115
+        schoolAustStatisticalGeographyStandardRemotenessArea:
+          type: string
+          description: The Australian Statistical Geography Standard Remoteness Area Name of the school (SRD).
+          nullable: true
+          example: Major Cities of Australia
+        schoolStatisticalAreaLevel4Name:
+          type: string
+          description: The Statistical Area Level 4 Region Name of the school (SRD).
+          nullable: true
+          example: Sydney - Inner West
+        schoolName:
+          type: string
+          description: This attribute represents the official NSW Department of Education school name. Note - For schools that are non operational or are in the planning phase the official name may not be confirmed (AMS).
+          nullable: true
+          example: ' Annandale North Public School'
+        schoolFaxNumber1:
+          type: string
+          description: The fax number of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS).
+          nullable: true
+          example: 9713 6220
+        schoolLongitudinalCoordinate:
+          type: number
+          description: The longitudinal coordinate of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS).
+          nullable: true
+          example: 151.1720585
+        schoolLatitudinalCoordinate:
+          type: number
+          description: The latitudinal coordinate of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS).
+          nullable: true
+          example: -33.87802965
+        schoolAssetsManagementUnitRegionName:
+          type: string
+          description: The AMU region name of the school (AMS).
+          nullable: true
+          example: Sydney AMU
+        schoolStatePlanningRegionName:
+          type: string
+          description: The state planning region name of the school (AMS).
+          nullable: true
+          example: Metropolitan Sydney
+        schoolStatePlanningDistrictName:
+          type: string
+          description: The state planning district name of the school (AMS).
+          nullable: true
+          example: Eastern City
+        schoolDepartmentPremierCabinetName:
+          type: string
+          description: The DPC region name of the school (AMS).
+          nullable: true
+          example: Metropolitan Sydney
+        schoolStatusClassificationTypeName:
+          type: string
+          description: This attribute represents the status classification type of the school. NOTE - This appears to be a higher level of status for the school (AMS).
+          nullable: true
+          example: School (Operating)
+        schoolLevelClassificationTypeName:
+          type: string
+          description: This attribute represents the level classification type of the school (AMS).
+          nullable: true
+          example: Public
+        schoolIntakeZoneType:
+          type: string
+          description: The intake zone type of the school (AMS).
+          nullable: true
+          example: PRIMARY
+        schoolEnrolmentYear:
+          type: integer
+          description: The enrolment year of the school. NOTE - Student data is received from the staffing unit. This data is used to derive student location data (geo-codes). This data is ususally received in May each year (AMS).
+          nullable: true
+          example: 2019
+        schoolEnrolmentCount:
+          type: integer
+          description: The enrolment count of the school. NOTE - This data is received for the staffing unit usually around late February (AMS).
+          nullable: true
+          example: 408
+        schoolERNEnrolmentYear:
+          type: integer
+          description: The ERN enrolment year of the school (AMS).
+          nullable: true
+          example: 2019
+        schoolEnrolmentCapacityCount:
+          type: integer
+          description: The enrolment capacity count of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS).
+          nullable: true
+          example: 416
+        schoolInAreaEnrolmentCount:
+          type: integer
+          description: The in area enrolment count of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS).
+          nullable: true
+          example: 291
+        schoolInAreaEnrolmentPercentage:
+          type: number
+          description: The in area enrolment count as a percentage of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS).
+          nullable: true
+          example: 0.7203
+        schoolOutAreaEnrolmentCount:
+          type: integer
+          description: The out of area enrolment count of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS).
+          nullable: true
+          example: 113
+        schoolOutAreaEnrolmentPercentage:
+          type: number
+          description: The out of area enrolment count as a percentage of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS).
+          nullable: true
+          example: 0.2797
+        schoolStudentLivingInAreaCount:
+          type: integer
+          description: The number of students living in the area of the school. NOTE - This count is derived based on the ERN enrolment addresses of the students. If the address falls within the catchment boundary for the school, they are considered 'Living in the area' regardless of whether they attend as long as they are in the correct age cohort of the school (AMS).
+          nullable: true
+          example: 326
+        schoolPermanentClassroomCount:
+          type: integer
+          description: The permanent classroom count of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS).
+          nullable: true
+          example: 18
+        schoolDemountableClassroomCount:
+          type: integer
+          description: The demountable classroom count of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS).
+          nullable: true
+          example: 5
+        schoolEmployeeTeachingCount:
+          type: integer
+          description: The employee teaching count excluding executive and ancillary employees of the school (AMS).
+          nullable: true
+          example: 16
+        schoolSpaceUtilisationPercentage:
+          type: number
+          description: The space utilisation percentage of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS).
+          nullable: true
+          example: 0.8889
+        schoolPermanentGrossFloorArea:
+          type: number
+          description: The permanent gross floor area excluding demountable classrooms of the school. NOTE - For schools that are non operational or are in the planning phase this may not be known as yet (AMS).
+          nullable: true
+          example: 2945.35
+        schoolAdditionalValue:
+          type: string
+          description: For future use (AMS).
+          nullable: true
+          example: '{"LAND_SIZE": 21523}'
+        eventType:
+          type: string
+          description: This attribute represents the event type of the record (AMS).
+          nullable: true
+          example: Create
+        recordSentDate:
+          type: string
+          description: This attribute represents the date the record was sent from AMS (AMS).
+          format: date-time
+          nullable: true
+          example: 2015-07-04T21:00:00Z
+        sourceSystemIdentifier:
+          type: string
+          description: This attribute represents the AMS identifier for the record, usually the school code. NOTE - This attribute and the school code may be different due to the time lag of official school code being allocated (AMS).
+          nullable: true
+          example: "0551"
+      description: Composite School data type combining AMS and SRD source attributes
+    QueryBodyType_query:
+      type: object
+      properties:
+        modifiedSince:
+          type: string
+          description: Filter by schools modified since the specified date. Note must include timezone.
+          format: date-time
+          nullable: true
+          example: 2020-03-04T12:30:22+10:00
+        schoolCodes:
+          type: array
+          description: Filter by schoolCode attribute.
+          nullable: true
+          example:
+          - "1001"
+          - "1002"
+          items:
+            type: string
+        responseProperties:
+          type: array
+          description: Return only the specified list of school attributes. if omitted, all attributes are returned.
+          nullable: true
+          example:
+          - schoolCode
+          - schoolFullName
+          items:
+            type: string
+      description: The school search query.
+    ResponseBodyType_links:
+      type: object
+      properties:
+        href:
+          type: string
+          nullable: false
+          example: /schools?page=1&limit=20
+        ref:
+          type: string
+          nullable: false
+          example: next
+      description: A link to related REST resources
+    CommonErrorType_source:
+      type: object
+      properties:
+        pointer:
+          type: string
+          description: JSON Pointer [RFC6901] to the associated entity in the request document [e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute].
+          nullable: true
+          example: /data/attributes/title
+        parameter:
+          type: string
+          description: A string indicating which URI query parameter caused the error.
+          nullable: true
+          example: postcode
+      description: An object containing references to the source of the error.
+  securitySchemes:
+    Oauth2:
+      type: oauth2
+      description: OAuth2 authentication/authorisation using Client Credentials flow
+      flows:
+        clientCredentials:
+          tokenUrl: https://school-domain.auth.ap-southeast-2.amazoncognito.com/oauth2/token
+          scopes:
+            school-domain/read: Read schools

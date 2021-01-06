@@ -1,0 +1,669 @@
+---
+openapi: 3.0.0
+info:
+  title: Staff Domain API
+  description: Staff Domain API
+  contact:
+    name: NSW DoE Integration Competency Centre
+    email: icc@det.nsw.edu.au
+  version: 1.1.5
+servers:
+- url: https://virtserver.swaggerhub.com/nsw-education/staff-domain-api-v1/1.1.5
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: staff
+  description: Search Staff
+paths:
+  /staff/search:
+    description: Staff search endpoint.
+    post:
+      tags:
+      - staff
+      summary: Query Staff data.
+      description: Query Staff data with filtering.
+      operationId: getStaffList
+      parameters:
+      - name: page
+        in: query
+        description: The page number of the paginated query.
+        required: true
+        style: form
+        explode: true
+        schema:
+          minimum: 1
+          type: integer
+          example: 1
+      - name: limit
+        in: query
+        description: The size of the page to return.
+        required: true
+        style: form
+        explode: true
+        schema:
+          maximum: 200
+          minimum: 1
+          type: integer
+          example: 3
+      - name: x-correlation-id
+        in: header
+        description: The correltion id.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          example: 06bfcb75-7694-49ac-bb30-53f100253d70
+      requestBody:
+        description: Request body used to filter response.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryBodyType'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBodyType'
+        "400":
+          description: Bad request - check the format and contents of the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorListType'
+        "401":
+          description: Bad or expired token. Re-authenticate the user to fix.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorListType'
+        "403":
+          description: Bad OIDC / OAuth2 request (wrong consumer key, bad nonce, expired timestamp etc).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorListType'
+components:
+  schemas:
+    IdentifierType:
+      type: string
+      description: This attribute represents the CESE generated Staff identififer.
+      example: "7654321"
+    SapEmployeeIdentifierType:
+      type: string
+      description: This attribute represents the official NSW Department of Education SAP Staff identififer.
+      example: "01234567"
+    TitleTypeCodeType:
+      type: string
+      description: This attribute represents the Staff member's title.
+      example: Mr
+    GivenNameType:
+      type: string
+      description: This attribute represents the Staff member's given name.
+      example: Michael
+    MiddleNameType:
+      type: string
+      description: This attribute represents the Staff member's middle name.
+      example: "6"
+    FamilyNameType:
+      type: string
+      description: This attribute represents the Staff member's family name.
+      example: Open Staff
+    DoEUserIdentifierType:
+      type: string
+      description: This attribute represents the Staff member's unique user identifier within DoE.
+      example: micheal.robinson12
+    EmailAddressType:
+      type: string
+      description: This attribute represents the Staff member's email address.
+      example: micheal.robinson12@det.nsw.edu.au
+    AddressLine1Type:
+      type: string
+      description: This attribute represents the first line of the Staff member's address.
+      example: 1 Low Street
+    SuburbNameType:
+      type: string
+      description: This attribute represents the suburb of the Staff member's address.
+      example: Barowra
+    PostalCodeType:
+      type: string
+      description: This attribute represents the postcode of the Staff member's address.
+      example: "1234"
+    StateCodeType:
+      type: string
+      description: This attribute represents the state code of the Staff member's address.
+      example: QLD
+    PhoneNumberType:
+      type: string
+      description: This attribute represents the Staff member's phone number.
+      example: "980774455"
+    GenderTypeCode:
+      type: string
+      description: This attribute represents the Staff member's gender code.
+      example: X
+    WorkingWithChildrenCheckNumberType:
+      type: string
+      description: This attribute represents the Staff member's Working With Children check number.
+      example: WWC024249720943S
+    SchoolCodeType:
+      type: string
+      description: School code of the employment
+      example: "1234"
+    PositionNameType:
+      type: string
+      description: Position name of the employment
+      example: C'Room Techer SBR
+    EmploymentType:
+      type: array
+      items:
+        $ref: '#/components/schemas/StaffEmploymentType'
+    StaffEmploymentType:
+      type: object
+      properties:
+        staffSchoolCode:
+          $ref: '#/components/schemas/SchoolCodeType'
+        staffPostiionName:
+          $ref: '#/components/schemas/PositionNameType'
+      description: This attribute represents the Staff member's Employment
+    StaffType:
+      type: object
+      properties:
+        staffIdentifier:
+          $ref: '#/components/schemas/IdentifierType'
+        staffSapEmployeeIdentifier:
+          $ref: '#/components/schemas/SapEmployeeIdentifierType'
+        staffTitleTypeCode:
+          $ref: '#/components/schemas/TitleTypeCodeType'
+        staffGivenName:
+          $ref: '#/components/schemas/GivenNameType'
+        staffMiddleName:
+          $ref: '#/components/schemas/MiddleNameType'
+        staffFamilyName:
+          $ref: '#/components/schemas/FamilyNameType'
+        staffDoEUserIdentifier:
+          $ref: '#/components/schemas/DoEUserIdentifierType'
+        staffDoEEmailAddress:
+          $ref: '#/components/schemas/EmailAddressType'
+        staffStreetAddressLine1:
+          $ref: '#/components/schemas/AddressLine1Type'
+        staffStreetAddressSuburbName:
+          $ref: '#/components/schemas/SuburbNameType'
+        staffStreetAddressPostalCode:
+          $ref: '#/components/schemas/PostalCodeType'
+        staffStreetAddressStateCode:
+          $ref: '#/components/schemas/StateCodeType'
+        staffPhoneNumber:
+          $ref: '#/components/schemas/PhoneNumberType'
+        staffGenderTypeCode:
+          $ref: '#/components/schemas/GenderTypeCode'
+        staffWorkingWithChildrenCheckNumber:
+          $ref: '#/components/schemas/WorkingWithChildrenCheckNumberType'
+        staffEmployment:
+          $ref: '#/components/schemas/EmploymentType'
+    StaffListType:
+      properties:
+        staff:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffType'
+      description: List of Staff
+    QueryBodyType:
+      type: object
+      properties:
+        query:
+          $ref: '#/components/schemas/QueryBodyType_query'
+      description: The envelope for the query.
+    ResponseBodyType:
+      required:
+      - _links
+      - students
+      properties:
+        _links:
+          $ref: '#/components/schemas/LinkListType'
+        staff:
+          $ref: '#/components/schemas/StaffListType'
+      description: Response body
+    GUIDType:
+      title: GUIDType
+      type: string
+      description: A unique identifier
+      example: 2f72296f-1dcd-47eb-950c-ff9a060562f8
+    HTTPStatusType:
+      title: HTTPStatusType
+      description: A subset of HTTP status codes and phrases.
+      example: <status_code>
+      oneOf:
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 200
+          phrase:
+            type: string
+            enum:
+            - OK
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 201
+          phrase:
+            type: string
+            enum:
+            - Created
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 202
+          phrase:
+            type: string
+            enum:
+            - Accepted
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 204
+          phrase:
+            type: string
+            enum:
+            - No content
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 304
+          phrase:
+            type: string
+            enum:
+            - Not Modified
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 400
+          phrase:
+            type: string
+            enum:
+            - Bad Request
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 401
+          phrase:
+            type: string
+            enum:
+            - Unauthorized
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 403
+          phrase:
+            type: string
+            enum:
+            - Forbidden
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 404
+          phrase:
+            type: string
+            enum:
+            - Not found
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 405
+          phrase:
+            type: string
+            enum:
+            - Not allowed
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 406
+          phrase:
+            type: string
+            enum:
+            - Not Acceptable
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 408
+          phrase:
+            type: string
+            enum:
+            - Request Timeout
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 409
+          phrase:
+            type: string
+            enum:
+            - Conflict
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 410
+          phrase:
+            type: string
+            enum:
+            - Gone
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 412
+          phrase:
+            type: string
+            enum:
+            - Length Required
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 412
+          phrase:
+            type: string
+            enum:
+            - Precondition Failed
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 413
+          phrase:
+            type: string
+            enum:
+            - Payload Too Large
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 414
+          phrase:
+            type: string
+            enum:
+            - URI Too Long
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 415
+          phrase:
+            type: string
+            enum:
+            - Unsupported Media Type
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 418
+          phrase:
+            type: string
+            enum:
+            - I'm a teapot
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 429
+          phrase:
+            type: string
+            enum:
+            - Too Many Requests
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 422
+          phrase:
+            type: string
+            enum:
+            - Unprocessable Entity
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 431
+          phrase:
+            type: string
+            enum:
+            - Request Header Fields Too Large
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 500
+          phrase:
+            type: string
+            enum:
+            - Internal Server Error
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 501
+          phrase:
+            type: string
+            enum:
+            - Method Not Implemented
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 503
+          phrase:
+            type: string
+            enum:
+            - Service Unavailable
+      - type: object
+        properties:
+          code:
+            type: integer
+            enum:
+            - 504
+          phrase:
+            type: string
+            enum:
+            - Gateway Timeout
+    ErrorType:
+      title: ErrorType
+      required:
+      - description
+      - status
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/HTTPStatusType'
+        description:
+          type: string
+          example: This describes the nature of the error
+        correlationId:
+          example: 92108c83-f5bb-4bc2-9370-f9802367596a
+          oneOf:
+          - type: string
+            format: uuid
+          - $ref: '#/components/schemas/GUIDType'
+        referenceId:
+          example: 463c0b3e-1424-49c4-9a5b-d9f123702b70
+          oneOf:
+          - type: string
+            format: uuid
+          - $ref: '#/components/schemas/GUIDType'
+      description: Common API error type
+    ErrorListType:
+      title: List of errors
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorType'
+      description: An array of errors returned to the client
+    LinkType:
+      type: object
+      properties:
+        href:
+          type: string
+          nullable: false
+          example: /search?page=1&limit=20
+        ref:
+          type: string
+          nullable: false
+          example: next
+      description: Href link
+    LinkListType:
+      type: object
+      properties:
+        _links:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkType'
+      description: List of errors
+    QueryBodyType_query:
+      type: object
+      properties:
+        modifiedSince:
+          type: string
+          description: Filter by staff modified since the specified date.
+          format: date-time
+          nullable: true
+          example: 2020-01-02T11:59:58Z
+        schoolCodes:
+          type: array
+          description: Return only those employees with a position in one of the schools.
+          nullable: true
+          example:
+          - "1001"
+          - "8232"
+          items:
+            type: string
+        staffIdentifiers:
+          type: array
+          description: Return only those employees with the given staff identifiers
+          nullable: true
+          example:
+          - "5197480"
+          - "8538903"
+          - "5146718"
+          - "6831850"
+          items:
+            type: string
+        sapEmployeeIdentifiers:
+          type: array
+          description: Return only those employees with the given SAP staff identifiers
+          nullable: true
+          example:
+          - "01234567"
+          - "08866447"
+          - "06553677"
+          - "08653246"
+          items:
+            type: string
+        responseProperties:
+          type: array
+          description: Return only the specified list of attributes. if omitted, all attributes are returned.
+          nullable: true
+          example:
+          - staffIdentifier
+          - staffEmployment
+          items:
+            type: string
+      description: The search query.
+  responses:
+    "400":
+      description: Bad request - check the format and contents of the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorListType'
+    "401":
+      description: Bad or expired token. Re-authenticate the user to fix.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorListType'
+    "403":
+      description: Bad OIDC / OAuth2 request (wrong consumer key, bad nonce, expired timestamp etc).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorListType'
+    "404":
+      description: Data for the requested input value could not be located.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorListType'
+  parameters:
+    page:
+      name: page
+      in: query
+      description: The page number of the paginated query.
+      required: true
+      style: form
+      explode: true
+      schema:
+        minimum: 1
+        type: integer
+        example: 1
+    limit:
+      name: limit
+      in: query
+      description: The size of the page to return.
+      required: true
+      style: form
+      explode: true
+      schema:
+        maximum: 200
+        minimum: 1
+        type: integer
+        example: 3
+    x-correlation-id:
+      name: x-correlation-id
+      in: header
+      description: The correltion id.
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+        example: 06bfcb75-7694-49ac-bb30-53f100253d70
